@@ -1,4 +1,5 @@
-FROM openjdk:22-jdk
-COPY target/micro22-0.0.1-SNAPSHOT.jar app.jar
-EXPOSE 8080
+FROM FROM amazoncorretto:21-alpine-jdk
+WORKDIR /micro2
+COPY ./target/micro22-0.0.1-SNAPSHOT.jar app.jar
+EXPOSE 8002
 ENTRYPOINT ["java", "-jar", "app.jar"]
