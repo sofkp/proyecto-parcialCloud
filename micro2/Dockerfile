@@ -6,6 +6,6 @@ RUN mvn clean package -DskipTests
 
 FROM amazoncorretto:21-alpine-jdk
 WORKDIR /app
-COPY micro2/target/micro22-0.0.1-SNAPSHOT.jar app.jar
+COPY --from=BUILD /micro2/target/micro22-0.0.1-SNAPSHOT.jar app.jar
 EXPOSE 8002
 ENTRYPOINT ["java", "-jar", "app.jar"]
