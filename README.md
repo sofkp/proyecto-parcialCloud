@@ -53,3 +53,8 @@ y copiamos y pegamos micro2/schema.sql
 $ docker volume create mongo_c
 $ docker run -d --rm --name mongo_c -p 27017:27017 -v mongo_data:/data/db mongo:latest
 $ docker exec -it mongo_c bash
+
+
+docker run -d --rm --name mysql_c -p 8001:8001 sofk/microservicio1
+docker run -d --rm --name postgres_c -p 8002:8002 sofk/microservicio2
+docker run -d --rm --name mongo_c -p 8003:8003 sofk/microservicio3
