@@ -1,7 +1,8 @@
 const express = require('express');
 const db = require('./db');
 const app = express();
-const port = 3000;
+const port = 8001;
+const host='0.0.0.0';
 
 app.use(express.json());
 
@@ -184,6 +185,6 @@ app.delete('/empleados/:id', (req, res) => {
     });
 });
 
-app.listen(port, () => {
-    console.log(`Server running on port ${port}`);
+app.listen(port, '0.0.0.0', () => {
+    console.log(`Servidor escuchando en http://0.0.0.0:${port}`);
 });

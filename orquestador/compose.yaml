@@ -1,0 +1,84 @@
+version: '3.8'
+
+services:
+  micro1:
+    build: ./micro1
+    container_name: micro1
+    ports:
+      - "8001:8001"
+    depends_on:
+      - micro1db
+    networks:
+      - micro_net
+
+  micro1db:
+    image: nouchka/sqlite3
+    container_name: micro1db
+    volumes:
+      - ./micro1/db:/data
+    networks:
+      - micro_net
+
+  micro2:
+    build: ./micro2
+    container_name: micro2
+    ports:
+      - "8002:8002"
+    depends_on:
+      - micro2db
+    networks:
+      - micro_net
+
+  micro2db:
+    image: postgres:14
+    container_name: micro2db
+    environment:
+      POSTGRES_DB: micro2db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./micro2/postgres_data:/var/lib/postgresql/data
+    networks:
+      - micro_net
+
+  micro3:
+    build: ./micro3
+    container_name: micro3
+    ports:
+      - "8003:8003"
+    depends_on:
+      - micro3db
+    networks:
+      - micro_net
+
+  micro3db:
+    image: mongo:5
+    container_name: micro3db
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./micro3/mongo_data:/data/db
+    networks:
+      - micro_net
+
+  orchestrator:
+    build: ./orchestrator 
+    container_name: orchestrator
+    ports:
+      - "8004:8004"
+    depends_on:
+      - micro1
+      - micro2
+      - micro3
+    networks:
+      - micro_net
+    environment:
+      USERS_MICROSERVICE_URL: "http://micro1:8001"
+      PRODUCTS_MICROSERVICE_URL: "http://micro2:8002"
+      ORDERS_MICROSERVICE_URL: "http://micro3:8003"   
+
+networks:
+  micro_net:
+    driver: bridge
