@@ -88,7 +88,7 @@ app.get('/productos/:id/detalle', async (req, res) => {
     }
 });
 
-app.get('/menu', async (req, res) => {
+app.get('/resumen', async (req, res) => {
     try {
         const clientesResponse = await axios.get(`${USERS_MICROSERVICE_URL}/clientes`);
         const clientesData = clientesResponse.data;

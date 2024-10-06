@@ -4,8 +4,8 @@ import logging as log
 
 app = Flask(__name__)
 
-client = MongoClient("mongodb://localhost:27017/") 
-db = client['nombre_de_tu_base_de_datos']
+client = MongoClient("mongodb://3.85.128.234:27017") 
+db = client['database']
 direcciones_collection = db['direcciones'] 
 pedidos_collection = db['pedidos']  
 
@@ -36,7 +36,7 @@ def pedido_api():
         return Response(response=json.dumps({'id': str(result.inserted_id)}), status=201, mimetype='application/json')
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8001, debug=True)
+    app.run(host='0.0.0.0', port=8003, debug=True)
 from flask import Flask, request, jsonify
 from pymongo import MongoClient
 import logging as log

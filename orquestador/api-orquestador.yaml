@@ -1,0 +1,158 @@
+openapi: 3.0.0
+info:
+  title: Orchestrator API
+  description: API que invoca a los otros microservicios (clientes, productos y pedidos)
+  version: 1.0.0
+servers:
+  - url: http://localhost:8004
+    description: Orchestrator Local Server
+paths:
+  /cliente/{id}:
+    get:
+      summary: Obtener información del cliente y sus pedidos
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID del cliente
+      responses:
+        '200':
+          description: Datos del cliente y sus pedidos
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  cliente:
+                    type: object
+                    description: Información del cliente
+                  pedidos:
+                    type: array
+                    items:
+                      type: object
+                      description: Lista de pedidos del cliente
+        '500':
+          description: Error al obtener los datos del cliente o sus pedidos
+
+  /empleado/{id}:
+    get:
+      summary: Obtener información de un empleado
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID del empleado
+      responses:
+        '200':
+          description: Información del empleado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  empleado:
+                    type: object
+                    description: Datos del empleado
+        '500':
+          description: Error al obtener los datos del empleado
+
+  /cliente/{id}/pedido:
+    post:
+      summary: Crear un nuevo pedido para un cliente
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID del cliente
+      requestBody:
+        description: Datos del nuevo pedido
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                productoId:
+                  type: integer
+                  description: ID del producto a pedir
+                cantidad:
+                  type: integer
+                  description: Cantidad de productos
+      responses:
+        '201':
+          description: Pedido creado con éxito
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Pedido creado
+                  pedido:
+                    type: object
+                    description: Información del nuevo pedido
+        '500':
+          description: Error al crear el pedido
+
+  /productos/{id}/detalle:
+    get:
+      summary: Obtener los detalles de un producto y su disponibilidad
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID del producto
+      responses:
+        '200':
+          description: Información del producto y disponibilidad
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  producto:
+                    type: object
+                    description: Detalles del producto
+                  disponibilidad:
+                    type: object
+                    description: Disponibilidad del producto
+        '500':
+          description: Error al obtener los detalles del producto o disponibilidad
+
+  /menu:
+    get:
+      summary: Obtener un resumen de clientes, productos y pedidos
+      responses:
+        '200':
+          description: Resumen de datos
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  clientes:
+                    type: array
+                    items:
+                      type: object
+                      description: Lista de clientes
+                  productos:
+                    type: array
+                    items:
+                      type: object
+                      description: Lista de productos
+                  pedidos:
+                    type: array
+                    items:
+                      type: object
+                      description: Lista de pedidos
+        '500':
+          description: Error al obtener el resumen de datos

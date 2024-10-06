@@ -185,6 +185,6 @@ app.delete('/empleados/:id', (req, res) => {
     });
 });
 
-app.listen(port, '0.0.0.0', () => {
-    console.log(`Servidor escuchando en http://0.0.0.0:${port}`);
+app.listen(port, () => {
+    console.log(`Microservicio escuchando en el puerto ${port_number}`);
 });
