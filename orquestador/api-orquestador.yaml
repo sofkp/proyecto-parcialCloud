@@ -4,7 +4,7 @@ info:
   description: API que invoca a los otros microservicios (clientes, productos y pedidos)
   version: 1.0.0
 servers:
-  - url: http://localhost:8004
+  - url: http://LB-Prod-164609483.us-east-1.elb.amazonaws.com:8004/
     description: Orchestrator Local Server
 paths:
   /cliente/{id}:

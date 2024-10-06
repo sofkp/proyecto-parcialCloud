@@ -6,7 +6,7 @@ CREATE TABLE usuarios (
     id INT PRIMARY KEY AUTO_INCREMENT,
     nombre TEXT NOT NULL,
     email VARCHAR(255) UNIQUE NOT NULL, 
-    celular VARCHAR(9) UNIQUE NOT NULL
+    celular VARCHAR(9) UNIQUE NOT NULL,
     tipo ENUM('cliente', 'empleado') NOT NULL
 );
 

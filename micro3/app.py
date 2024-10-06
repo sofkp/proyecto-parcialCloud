@@ -10,8 +10,8 @@ db = client['micro3']
 direcciones_collection = db['direcciones']
 pedidos_collection = db['pedidos']
 
-MICROSERVICIO_USUARIOS = "http://44.217.181.55:8001"
-MICROSERVICIO_PRODUCTOS = "http://44.217.181.55:8002"
+MICROSERVICIO_USUARIOS = "http://LB-Prod-164609483.us-east-1.elb.amazonaws.com:8001"
+MICROSERVICIO_PRODUCTOS = "http://LB-Prod-164609483.us-east-1.elb.amazonaws.com:8002"
 
 @app.route('/direccion', methods=['GET', 'POST'])
 def direccion_api():
