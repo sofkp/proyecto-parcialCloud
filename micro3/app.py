@@ -4,7 +4,7 @@ import logging as log
 
 app = Flask(__name__)
 
-client = MongoClient("mongodb://3.85.128.234:27017") 
+client = MongoClient("mongodb://44.210.145.245:27017") 
 db = client['database']
 direcciones_collection = db['direcciones'] 
 pedidos_collection = db['pedidos']  
