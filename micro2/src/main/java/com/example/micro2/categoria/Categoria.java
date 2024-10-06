@@ -12,7 +12,6 @@ public class Categoria {
     private int id;
     private String nombreCategoria;
 
-    // Getters y Setters
     public int getId() {
         return id;
     }

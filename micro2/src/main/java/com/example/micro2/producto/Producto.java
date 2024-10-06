@@ -13,7 +13,6 @@ public class Producto {
     @ManyToOne
     private Categoria categoria;
 
-    // Getters y Setters
     public int getIdProducto() {
         return idProducto;
     }
