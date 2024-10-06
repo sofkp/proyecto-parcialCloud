@@ -1,0 +1,102 @@
+openapi: 3.0.0
+info:
+  title: API de Direcciones y Pedidos
+  description: API para gestionar direcciones y pedidos.
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8001
+    description: Servidor de desarrollo
+
+paths:
+  /direccion:
+    get:
+      summary: Obtener todas las direcciones
+      responses:
+        '200':
+          description: Un arreglo JSON de direcciones
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    direccion_completa:
+                      type: string
+                    distrito:
+                      type: string
+                    provincia:
+                      type: string
+    post:
+      summary: Crear una nueva dirección
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                direccion_completa:
+                  type: string
+                distrito:
+                  type: string
+                provincia:
+                  type: string
+      responses:
+        '201':
+          description: Dirección creada exitosamente
+
+  /pedido:
+    get:
+      summary: Obtener todos los pedidos
+      responses:
+        '200':
+          description: Un arreglo JSON de pedidos
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    fecha_envio:
+                      type: string
+                      format: date
+                    metodo_pago:
+                      type: string
+                    total_pago:
+                      type: number
+                      format: double
+                    observaciones:
+                      type: string
+                    id_usuario:
+                      type: integer
+    post:
+      summary: Crear un nuevo pedido
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                fecha_envio:
+                  type: string
+                  format: date
+                metodo_pago:
+                  type: string
+                total_pago:
+                  type: number
+                  format: double
+                observaciones:
+                  type: string
+                id_usuario:
+                  type: integer
+      responses:
+        '201':
+          description: Pedido creado exitosamente

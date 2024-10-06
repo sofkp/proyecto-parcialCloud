@@ -1,0 +1,283 @@
+openapi: 3.0.0
+info:
+  title: API de Usuarios, Clientes y Empleados
+  description: API para gestionar usuarios, clientes y empleados.
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8000
+    description: Servidor de desarrollo
+
+paths:
+  /usuarios:
+    get:
+      summary: Obtener todos los usuarios
+      responses:
+        '200':
+          description: Un arreglo JSON de usuarios
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    nombre:
+                      type: string
+                    email:
+                      type: string
+                    celular:
+                      type: integer
+                    tipo:
+                      type: string
+    post:
+      summary: Crear un nuevo usuario
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                nombre:
+                  type: string
+                email:
+                  type: string
+                celular:
+                  type: integer
+                tipo:
+                  type: string
+      responses:
+        '200':
+          description: Usuario creado exitosamente
+
+  /usuarios/{id}:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+    get:
+      summary: Obtener un usuario por ID
+      responses:
+        '200':
+          description: Un objeto de usuario
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  nombre:
+                    type: string
+                  email:
+                    type: string
+                  celular:
+                    type: integer
+                  tipo:
+                    type: string
+        '404':
+          description: Usuario no encontrado
+    put:
+      summary: Actualizar un usuario por ID
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                nombre:
+                  type: string
+                email:
+                  type: string
+                celular:
+                  type: integer
+                tipo:
+                  type: string
+      responses:
+        '200':
+          description: Usuario actualizado exitosamente
+        '404':
+          description: Usuario no encontrado
+    delete:
+      summary: Eliminar un usuario por ID
+      responses:
+        '200':
+          description: Usuario eliminado exitosamente
+        '404':
+          description: Usuario no encontrado
+
+  /clientes:
+    get:
+      summary: Obtener todos los clientes
+      responses:
+        '200':
+          description: Un arreglo JSON de clientes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id_usuario:
+                      type: integer
+                    pedidos:
+                      type: array
+                      items:
+                        type: integer
+    post:
+      summary: Crear un nuevo cliente
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                id_usuario:
+                  type: integer
+                pedidos:
+                  type: array
+                  items:
+                    type: integer
+      responses:
+        '200':
+          description: Cliente creado exitosamente
+
+  /clientes/{id}:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+    get:
+      summary: Obtener un cliente por ID
+      responses:
+        '200':
+          description: Un objeto de cliente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id_usuario:
+                    type: integer
+                  pedidos:
+                    type: array
+                    items:
+                      type: integer
+        '404':
+          description: Cliente no encontrado
+    put:
+      summary: Actualizar un cliente por ID
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                pedidos:
+                  type: array
+                  items:
+                    type: integer
+      responses:
+        '200':
+          description: Cliente actualizado exitosamente
+        '404':
+          description: Cliente no encontrado
+    delete:
+      summary: Eliminar un cliente por ID
+      responses:
+        '200':
+          description: Cliente eliminado exitosamente
+        '404':
+          description: Cliente no encontrado
+
+  /empleados:
+    get:
+      summary: Obtener todos los empleados
+      responses:
+        '200':
+          description: Un arreglo JSON de empleados
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id_usuario:
+                      type: integer
+                    cargo:
+                      type: string
+    post:
+      summary: Crear un nuevo empleado
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                id_usuario:
+                  type: integer
+                cargo:
+                  type: string
+      responses:
+        '200':
+          description: Empleado creado exitosamente
+
+  /empleados/{id}:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+    get:
+      summary: Obtener un empleado por ID
+      responses:
+        '200':
+          description: Un objeto de empleado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id_usuario:
+                    type: integer
+                  cargo:
+                    type: string
+        '404':
+          description: Empleado no encontrado
+    put:
+      summary: Actualizar un empleado por ID
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                cargo:
+                  type: string
+      responses:
+        '200':
+          description: Empleado actualizado exitosamente
+        '404':
+          description: Empleado no encontrado
+    delete:
+      summary: Eliminar un empleado por ID
+      responses:
+        '200':
+          description: Empleado eliminado exitosamente
+        '404':
+          description: Empleado no encontrado

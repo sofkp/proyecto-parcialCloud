@@ -1,0 +1,98 @@
+openapi: 3.0.0
+info:
+  title: API de Categorías y Productos
+  description: API para gestionar categorías y productos.
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8000/api
+    description: Servidor de desarrollo
+
+paths:
+  /categorias:
+    get:
+      summary: Obtener todas las categorías
+      responses:
+        '200':
+          description: Un arreglo JSON de categorías
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    nombre_categoria:
+                      type: string
+    post:
+      summary: Crear una nueva categoría
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                nombre_categoria:
+                  type: string
+      responses:
+        '201':
+          description: Categoría creada exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  id:
+                    type: integer
+
+  /productos:
+    get:
+      summary: Obtener todos los productos
+      responses:
+        '200':
+          description: Un arreglo JSON de productos
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id_producto:
+                      type: integer
+                    precio:
+                      type: number
+                      format: double
+                    id_categoria:
+                      type: integer
+    post:
+      summary: Crear un nuevo producto
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                precio:
+                  type: number
+                  format: double
+                id_categoria:
+                  type: integer
+      responses:
+        '201':
+          description: Producto creado exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  id_producto:
+                    type: integer
