@@ -1,16 +1,31 @@
 const express = require('express');
-const db = require('./db');
+const mysql = require('mysql2');
 const app = express();
 const port = 8001;
-const host='0.0.0.0';
+const host = '0.0.0.0';
 
 app.use(express.json());
 
- //USUARIOS 
+const db = mysql.createConnection({
+    host: '3.85.128.234', 
+    user: 'root', 
+    password: 'utec', 
+    database: 'database' 
+});
+
+db.connect(err => {
+    if (err) {
+        console.error('Error al conectar a la base de datos:', err);
+        return;
+    }
+    console.log('Conectado a la base de datos MySQL');
+});
+
+// USUARIOS 
 app.get('/usuarios', (req, res) => {
-    db.all("SELECT * FROM usuarios", (err, rows) => {
+    db.query("SELECT * FROM usuarios", (err, rows) => {
         if (err) {
-            res.status(500).json({error: err.message});
+            res.status(500).json({ error: err.message });
             return;
         }
         res.json(rows);
@@ -20,23 +35,23 @@ app.get('/usuarios', (req, res) => {
 app.post('/usuarios', (req, res) => {
     const { nombre, email, celular, tipo } = req.body;
     const query = `INSERT INTO usuarios (nombre, email, celular, tipo) VALUES (?, ?, ?, ?)`;
-    db.run(query, [nombre, email, celular, tipo], function (err) {
+    db.query(query, [nombre, email, celular, tipo], function (err, results) {
         if (err) {
-            res.status(500).json({error: err.message});
+            res.status(500).json({ error: err.message });
             return;
         }
-        res.json({ id: this.lastID });
+        res.json({ id: results.insertId });
     });
 });
 
 app.get('/usuarios/:id', (req, res) => {
     const { id } = req.params;
-    db.get("SELECT * FROM usuarios WHERE id = ?", [id], (err, row) => {
+    db.query("SELECT * FROM usuarios WHERE id = ?", [id], (err, row) => {
         if (err) {
-            res.status(500).json({error: err.message});
+            res.status(500).json({ error: err.message });
             return;
         }
-        res.json(row);
+        res.json(row[0]);
     });
 });
 
@@ -44,31 +59,31 @@ app.put('/usuarios/:id', (req, res) => {
     const { id } = req.params;
     const { nombre, email, celular, tipo } = req.body;
     const query = `UPDATE usuarios SET nombre = ?, email = ?, celular = ?, tipo = ? WHERE id = ?`;
-    db.run(query, [nombre, email, celular, tipo, id], function (err) {
+    db.query(query, [nombre, email, celular, tipo, id], function (err, results) {
         if (err) {
-            res.status(500).json({error: err.message});
+            res.status(500).json({ error: err.message });
             return;
         }
-        res.json({ updatedID: this.changes });
+        res.json({ updatedID: results.affectedRows });
     });
 });
 
 app.delete('/usuarios/:id', (req, res) => {
     const { id } = req.params;
-    db.run("DELETE FROM usuarios WHERE id = ?", [id], function (err) {
+    db.query("DELETE FROM usuarios WHERE id = ?", [id], function (err, results) {
         if (err) {
-            res.status(500).json({error: err.message});
+            res.status(500).json({ error: err.message });
             return;
         }
-        res.json({ deletedID: this.changes });
+        res.json({ deletedID: results.affectedRows });
     });
 });
 
-//CLIENTES 
+// CLIENTES 
 app.get('/clientes', (req, res) => {
-    db.all("SELECT * FROM clientes", (err, rows) => {
+    db.query("SELECT * FROM clientes", (err, rows) => {
         if (err) {
-            res.status(500).json({error: err.message});
+            res.status(500).json({ error: err.message });
             return;
         }
         res.json(rows);
@@ -79,26 +94,28 @@ app.post('/clientes', (req, res) => {
     const { id_usuario, pedidos } = req.body;
     const pedidosStr = pedidos.join(',');
     const query = `INSERT INTO clientes (id_usuario, pedidos) VALUES (?, ?)`;
-    db.run(query, [id_usuario, pedidosStr], function (err) {
+    db.query(query, [id_usuario, pedidosStr], function (err, results) {
         if (err) {
-            res.status(500).json({error: err.message});
+            res.status(500).json({ error: err.message });
             return;
         }
-        res.json({ id: this.lastID });
+        res.json({ id: results.insertId });
     });
 });
 
 app.get('/clientes/:id', (req, res) => {
     const { id } = req.params;
-    db.get("SELECT * FROM clientes WHERE id_usuario = ?", [id], (err, row) => {
+    db.query("SELECT * FROM clientes WHERE id_usuario = ?", [id], (err, rows) => {
         if (err) {
-            res.status(500).json({error: err.message});
+            res.status(500).json({ error: err.message });
             return;
         }
-        if (row) {
-            row.pedidos = row.pedidos.split(',').map(Number);
+        if (rows.length > 0) {
+            rows[0].pedidos = rows[0].pedidos.split(',').map(Number);
+            res.json(rows[0]);
+        } else {
+            res.status(404).json({ error: 'Cliente no encontrado' });
         }
-        res.json(row);
     });
 });
 
@@ -107,31 +124,31 @@ app.put('/clientes/:id', (req, res) => {
     const { pedidos } = req.body;
     const pedidosStr = pedidos.join(',');
     const query = `UPDATE clientes SET pedidos = ? WHERE id_usuario = ?`;
-    db.run(query, [pedidosStr, id], function (err) {
+    db.query(query, [pedidosStr, id], function (err, results) {
         if (err) {
-            res.status(500).json({error: err.message});
+            res.status(500).json({ error: err.message });
             return;
         }
-        res.json({ updatedID: this.changes });
+        res.json({ updatedID: results.affectedRows });
     });
 });
 
 app.delete('/clientes/:id', (req, res) => {
     const { id } = req.params;
-    db.run("DELETE FROM clientes WHERE id_usuario = ?", [id], function (err) {
+    db.query("DELETE FROM clientes WHERE id_usuario = ?", [id], function (err, results) {
         if (err) {
-            res.status(500).json({error: err.message});
+            res.status(500).json({ error: err.message });
             return;
         }
-        res.json({ deletedID: this.changes });
+        res.json({ deletedID: results.affectedRows });
     });
 });
 
-//empleados
+// EMPLEADOS
 app.get('/empleados', (req, res) => {
-    db.all("SELECT * FROM empleados", (err, rows) => {
+    db.query("SELECT * FROM empleados", (err, rows) => {
         if (err) {
-            res.status(500).json({error: err.message});
+            res.status(500).json({ error: err.message });
             return;
         }
         res.json(rows);
@@ -141,23 +158,23 @@ app.get('/empleados', (req, res) => {
 app.post('/empleados', (req, res) => {
     const { id_usuario, cargo } = req.body;
     const query = `INSERT INTO empleados (id_usuario, cargo) VALUES (?, ?)`;
-    db.run(query, [id_usuario, cargo], function (err) {
+    db.query(query, [id_usuario, cargo], function (err, results) {
         if (err) {
-            res.status(500).json({error: err.message});
+            res.status(500).json({ error: err.message });
             return;
         }
-        res.json({ id: this.lastID });
+        res.json({ id: results.insertId });
     });
 });
 
 app.get('/empleados/:id', (req, res) => {
     const { id } = req.params;
-    db.get("SELECT * FROM empleados WHERE id_usuario = ?", [id], (err, row) => {
+    db.query("SELECT * FROM empleados WHERE id_usuario = ?", [id], (err, rows) => {
         if (err) {
-            res.status(500).json({error: err.message});
+            res.status(500).json({ error: err.message });
             return;
         }
-        res.json(row);
+        res.json(rows[0]);
     });
 });
 
@@ -165,26 +182,26 @@ app.put('/empleados/:id', (req, res) => {
     const { id } = req.params;
     const { cargo } = req.body;
     const query = `UPDATE empleados SET cargo = ? WHERE id_usuario = ?`;
-    db.run(query, [cargo, id], function (err) {
+    db.query(query, [cargo, id], function (err, results) {
         if (err) {
-            res.status(500).json({error: err.message});
+            res.status(500).json({ error: err.message });
             return;
         }
-        res.json({ updatedID: this.changes });
+        res.json({ updatedID: results.affectedRows });
     });
 });
 
 app.delete('/empleados/:id', (req, res) => {
     const { id } = req.params;
-    db.run("DELETE FROM empleados WHERE id_usuario = ?", [id], function (err) {
+    db.query("DELETE FROM empleados WHERE id_usuario = ?", [id], function (err, results) {
         if (err) {
-            res.status(500).json({error: err.message});
+            res.status(500).json({ error: err.message });
             return;
         }
-        res.json({ deletedID: this.changes });
+        res.json({ deletedID: results.affectedRows });
     });
 });
 
 app.listen(port, () => {
-    console.log(`Microservicio escuchando en el puerto ${port_number}`);
+    console.log(`Microservicio escuchando en el puerto ${port}`);
 });
