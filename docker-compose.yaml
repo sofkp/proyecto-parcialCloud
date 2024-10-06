@@ -1,0 +1,34 @@
+version: '3'
+
+services:
+  user_api:
+    build: ./micro1 
+    ports:
+      - "8001:8001"
+    restart: always
+
+  product_api:
+    build: ./micro2 
+    ports:
+      - "8002:8002"
+    restart: always
+
+  orders_api:
+    build: ./micro3 
+    ports:
+      - "8003:8003"
+    restart: always
+
+  orquestador:
+    build: ./orchestrator 
+    ports:
+      - "8004:8004"
+    depends_on:
+      - user_api
+      - product_api
+      - orders_api
+    restart: always
+    environment:
+      USERS_MICROSERVICE_URL: "http://lb-prod-653792025.us-east-1.elb.amazonaws.com:8001" 
+      PRODUCTS_MICROSERVICE_URL: "http://lb-prod-653792025.us-east-1.elb.amazonaws.com:8002" 
+      ORDERS_MICROSERVICE_URL: "http://lb-prod-653792025.us-east-1.elb.amazonaws.com:8003"  
