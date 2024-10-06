@@ -1,19 +1,24 @@
+DROP DATABASE IF EXISTS bd_usuarios;
+CREATE DATABASE bd_usuarios CHARACTER SET utf8mb4;
+USE bd_usuarios;
+
 CREATE TABLE usuarios (
-    id INT PRIMARY KEY AUTOINCREMENT,
+    id INT PRIMARY KEY AUTO_INCREMENT,
     nombre TEXT NOT NULL,
-    email TEXT UNIQUE NOT NULL,
-    celular INTEGER UNIQUE NOT NULL,
+    email VARCHAR(255) UNIQUE NOT NULL, 
+    celular VARCHAR(9) UNIQUE NOT NULL, 
     direccion_id TEXT,
-    tipo TEXT CHECK(tipo IN ('cliente', 'empleado')) NOT NULL,
-    FOREIGN KEY direccion_id REFERENCES direccion(id)
+    tipo ENUM('cliente', 'empleado') NOT NULL
 );
+
 CREATE TABLE clientes (
-    id_usuario INTEGER PRIMARY KEY,
+    id_usuario INT PRIMARY KEY,
     pedidos TEXT,
-    FOREIGN KEY(id_usuario) REFERENCES usuarios(id)
+    FOREIGN KEY (id_usuario) REFERENCES usuarios(id)
 );
+
 CREATE TABLE empleados (
-    id_usuario INTEGER PRIMARY KEY,
+    id_usuario INT PRIMARY KEY,
     cargo TEXT NOT NULL,
-    FOREIGN KEY(id_usuario) REFERENCES usuarios(id)
-)
+    FOREIGN KEY (id_usuario) REFERENCES usuarios(id)
+);
