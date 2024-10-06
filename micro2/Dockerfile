@@ -1,5 +1,5 @@
 FROM openjdk:22-jdk
-WORKDIR /app
+WORKDIR /micro2
 COPY target/*.jar app.jar
 EXPOSE 8080
 ENTRYPOINT ["java", "-jar", "app.jar"]
