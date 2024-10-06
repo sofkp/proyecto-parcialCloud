@@ -1,5 +1,5 @@
-FROM amazoncorretto:21-alpine-jdk
+FROM openjdk:17-jdk-slim
 WORKDIR /app
-COPY --from=build /micro2/target/micro22-0.0.1-SNAPSHOT.jar app.jar
+COPY target/micro22-0.0.1-SNAPSHOT.jar app.jar
 EXPOSE 8002
 ENTRYPOINT ["java", "-jar", "app.jar"]
