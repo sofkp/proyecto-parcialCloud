@@ -1,5 +1,5 @@
 FROM amazoncorretto:21-alpine-jdk
-WORKDIR /app
-COPY ./target/micro22-0.0.1-SNAPSHOT.jar app.jar
-EXPOSE 8002
-ENTRYPOINT ["java", "-jar", "app.jar"]
+COPY ./target/micro22-0.0.1-SNAPSHOT.jar /tmp
+WORKDIR /tmp
+EXPOSE 8080
+ENTRYPOINT ["java", "-jar", "micro22-0.0.1-SNAPSHOT.jar"]
