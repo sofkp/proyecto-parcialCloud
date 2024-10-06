@@ -1,4 +1,4 @@
-FROM FROM amazoncorretto:21-alpine-jdk
+FROM amazoncorretto:21-alpine-jdk
 WORKDIR /micro2
 COPY ./target/micro22-0.0.1-SNAPSHOT.jar app.jar
 EXPOSE 8002
