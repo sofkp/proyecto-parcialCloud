@@ -1,0 +1,25 @@
+services:  
+  micro2:
+    build: .  
+    ports:
+      - "8001:8001"  
+    depends_on:
+      - mysql  
+    networks: 
+      - microservices_network
+
+  mysql:
+    image: mysql:5.7 
+    environment:
+      MYSQL_ROOT_PASSWORD: utec
+      MYSQL_DATABASE: mysql_c
+    volumes:
+      - ./data.sql:/docker-entrypoint-initdb.d/data.sql:ro
+    ports:
+      - "3306:3306" 
+    networks: 
+      - microservices_network
+
+networks: 
+  microservices_network: 
+    driver: bridge  

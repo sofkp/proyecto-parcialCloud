@@ -1,8 +1,8 @@
-FROM python:3.8-slim
-WORKDIR /programas/micro3
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+FROM node:16
+WORKDIR /app
+COPY package*.json ./
+RUN npm install
 COPY . .
 EXPOSE 8003
-CMD ["python", "./app.py"]
-
+CMD ["node", "src/index.js"]
+RUN apt-get update && apt-get install -y dnsutils

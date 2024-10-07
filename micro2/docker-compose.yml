@@ -1,29 +1,28 @@
 version: '3.9'
 
 services:
-  postgres:
-    image: postgres:15
+  microservicio1:
+    image: sofk/microservicio1
     environment:
-      POSTGRES_DB: ${DB_NAME}
-      POSTGRES_USER: ${DB_USERNAME}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
+      spring.datasource.url=jdbc: postgresql://${postgres:localhost}:5432/postgres_c
     ports:
-      - "5432:5432"
+      - "8002:8002"
+    depends_on:
+      -postgres
+    networks:
+      -microservices_network
 
-  app:
-    build: .
+  postgres:
+    image: postgres
     environment:
-      DB_HOST: postgres
-      DB_PORT: 5432
       DB_NAME: ${DB_NAME}
       DB_USERNAME: ${DB_USERNAME}
       DB_PASSWORD: ${DB_PASSWORD}
     ports:
-      - "8080:8080"
-    depends_on:
-      - postgres
+      - "5432:5432"
+    networks:
+      - microservices_network
 
-volumes:
-  postgres_data:
+networl:
+  microservices_network:
+    driver: bridge

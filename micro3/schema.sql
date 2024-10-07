@@ -11,7 +11,9 @@ CREATE TABLE pedido (
     total_pago DECIMAL(10,2),
     observaciones TEXT NOT NULL,
     id_usuario INT NOT NULL,
-    FOREIGN KEY(id_usuario) REFERENCES cliente(id)
+    id_direccion INT NOT NULL,
+    FOREIGN KEY(id_usuario) REFERENCES cliente(id),
+    FOREIGN KEY(id_direccion) REFERENCES direccion(id)
 );
 
 use micro3

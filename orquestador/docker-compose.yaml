@@ -1,0 +1,13 @@
+version: '3.8'
+services:
+  orquestador:
+    #build: .
+    image: sofk/api-orquestador:2.0.1
+    ports:
+      - "8004:8004" 
+    networks:
+      - microservices_network
+
+networks:
+  microservices_network:
+    driver: bridge

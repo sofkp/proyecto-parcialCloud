@@ -1,113 +1,234 @@
-const express = require('express');
-const axios = require('axios');
-const bodyParser = require('body-parser');
-
+const express = require("express");
 const app = express();
-const PORT = 8004;
+const axios = require("axios");
+const cors = require("cors");
 
-app.use(bodyParser.json());
+app.use(express.json());
+app.use(cors());
 
-const USERS_MICROSERVICE_URL = 'http://localhost:8001';  
-const PRODUCTS_MICROSERVICE_URL = 'http://localhost:8002'; 
-const ORDERS_MICROSERVICE_URL = 'http://localhost:8003'; 
+const port = 8004;
 
-app.get('/cliente/:id', async (req, res) => {
-    const clienteId = req.params.id;
+const MV_IP = "100.27.200.19";
+const HOST_MYSQL = "http://" + MV_IP + ":8001/";
+const express = require("express"); 
 
-    try {
-        const clienteResponse = await axios.get(`${USERS_MICROSERVICE_URL}/clientes/${clienteId}`);
-        const clienteData = clienteResponse.data;
-
-        const pedidosResponse = await axios.get(`${ORDERS_MICROSERVICE_URL}/pedidos/cliente/${clienteId}`);
-        const pedidosData = pedidosResponse.data;
-
-        res.status(200).json({
-            cliente: clienteData,
-            pedidos: pedidosData
-        });
-    } catch (error) {
-        console.error(error.message);
-        res.status(500).json({ error: 'Error al obtener los datos del cliente o sus pedidos' });
-    }
+// Direccion API
+app.get("/direccion", (req, res) => {
+  axios.get(HOST_MSQL + "direccion")
+    .then((response) => res.send(response.data))
+    .catch((error) => console.log(error));
 });
 
-app.get('/empleado/:id', async (req, res) => {
-    const empleadoId = req.params.id;
-
-    try {
-        const empleadoResponse = await axios.get(`${USERS_MICROSERVICE_URL}/empleados/${empleadoId}`);
-        const empleadoData = empleadoResponse.data;
-
-        res.status(200).json({
-            empleado: empleadoData,
-            productos: productosData
-        });
-    } catch (error) {
-        console.error(error.message);
-        res.status(500).json({ error: 'Error al obtener los datos del empleado o los productos' });
-    }
+app.post("/direccion", (req, res) => {
+  axios.post(HOST_MSQL + "direccion", req.body)
+    .then((response) => res.send(response.data))
+    .catch((error) => console.log(error));
 });
 
-app.post('/cliente/:id/pedido', async (req, res) => {
-    const clienteId = req.params.id;
-    const pedidoData = req.body;
-
-    try {
-        const clienteResponse = await axios.get(`${USERS_MICROSERVICE_URL}/clientes/${clienteId}`);
-        if (!clienteResponse.data) {
-            return res.status(404).json({ error: 'Cliente no encontrado' });
-        }
-
-        const newPedidoResponse = await axios.post(`${ORDERS_MICROSERVICE_URL}/pedidos`, pedidoData);
-        res.status(201).json({ message: 'Pedido creado', pedido: newPedidoResponse.data });
-    } catch (error) {
-        console.error(error.message);
-        res.status(500).json({ error: 'Error al crear el pedido' });
-    }
+app.get("/direccion/:id", (req, res) => {
+  axios.get(HOST_MSQL + "direccion/" + req.params.id)
+    .then((response) => res.send(response.data))
+    .catch((error) => console.log(error));
 });
 
-app.get('/productos/:id/detalle', async (req, res) => {
-    const productoId = req.params.id;
-
-    try {
-        const productoResponse = await axios.get(`${PRODUCTS_MICROSERVICE_URL}/productos/${productoId}`);
-        const productoData = productoResponse.data;
-
-        const disponibilidadResponse = await axios.get(`${ORDERS_MICROSERVICE_URL}/disponibilidad/${productoId}`);
-        const disponibilidadData = disponibilidadResponse.data;
-
-        res.status(200).json({
-            producto: productoData,
-            disponibilidad: disponibilidadData
-        });
-    } catch (error) {
-        console.error(error.message);
-        res.status(500).json({ error: 'Error al obtener detalles del producto o su disponibilidad' });
-    }
+app.put("/direccion/:id", (req, res) => {
+  axios.put(HOST_MSQL + "direccion/" + req.params.id, req.body)
+    .then((response) => res.send(response.data))
+    .catch((error) => console.log(error));
 });
 
-app.get('/resumen', async (req, res) => {
-    try {
-        const clientesResponse = await axios.get(`${USERS_MICROSERVICE_URL}/clientes`);
-        const clientesData = clientesResponse.data;
-
-        const productosResponse = await axios.get(`${PRODUCTS_MICROSERVICE_URL}/productos`);
-        const productosData = productosResponse.data;
-
-        const pedidosResponse = await axios.get(`${ORDERS_MICROSERVICE_URL}/pedidos`);
-        const pedidosData = pedidosResponse.data;
-
-        res.status(200).json({
-            clientes: clientesData,
-            productos: productosData,
-            pedidos: pedidosData
-        });
-    } catch (error) {
-        console.error(error.message);
-        res.status(500).json({ error: 'Error al obtener el resumen de los datos' });
-    }
+app.delete("/direccion/:id", (req, res) => {
+  axios.delete(HOST_MSQL + "direccion/" + req.params.id)
+    .then((response) => res.send(response.data))
+    .catch((error) => console.log(error));
 });
 
-app.listen(PORT, () => {
-    console.log(`Orchestrator running on http://localhost:${PORT}`);
+// Pedido API
+app.get("/pedido", (req, res) => {
+  axios.get(HOST_MSQL + "pedido")
+    .then((response) => res.send(response.data))
+    .catch((error) => console.log(error));
+});
+
+app.post("/pedido", (req, res) => {
+  axios.post(HOST_MSQL + "pedido", req.body)
+    .then((response) => res.send(response.data))
+    .catch((error) => console.log(error));
+});
+
+app.get("/pedido/:id", (req, res) => {
+  axios.get(HOST_MSQL + "pedido/" + req.params.id)
+    .then((response) => res.send(response.data))
+    .catch((error) => console.log(error));
+});
+
+app.put("/pedido/:id", (req, res) => {
+  axios.put(HOST_MSQL + "pedido/" + req.params.id, req.body)
+    .then((response) => res.send(response.data))
+    .catch((error) => console.log(error));
+});
+
+app.delete("/pedido/:id", (req, res) => {
+  axios.delete(HOST_MSQL + "pedido/" + req.params.id)
+    .then((response) => res.send(response.data))
+    .catch((error) => console.log(error));
+});
+
+// Categoria API
+app.get("/categoria", (req, res) => {
+  axios.get(HOST_MSQL + "categoria")
+    .then((response) => res.send(response.data))
+    .catch((error) => console.log(error));
+});
+
+app.post("/categoria", (req, res) => {
+  axios.post(HOST_MSQL + "categoria", req.body)
+    .then((response) => res.send(response.data))
+    .catch((error) => console.log(error));
+});
+
+app.get("/categoria/:id", (req, res) => {
+  axios.get(HOST_MSQL + "categoria/" + req.params.id)
+    .then((response) => res.send(response.data))
+    .catch((error) => console.log(error));
+});
+
+app.put("/categoria/:id", (req, res) => {
+  axios.put(HOST_MSQL + "categoria/" + req.params.id, req.body)
+    .then((response) => res.send(response.data))
+    .catch((error) => console.log(error));
+});
+
+app.delete("/categoria/:id", (req, res) => {
+  axios.delete(HOST_MSQL + "categoria/" + req.params.id)
+    .then((response) => res.send(response.data))
+    .catch((error) => console.log(error));
+});
+
+// Productos API
+app.get("/productos", (req, res) => {
+  axios.get(HOST_MSQL + "productos")
+    .then((response) => res.send(response.data))
+    .catch((error) => console.log(error));
+});
+
+app.post("/productos", (req, res) => {
+  axios.post(HOST_MSQL + "productos", req.body)
+    .then((response) => res.send(response.data))
+    .catch((error) => console.log(error));
+});
+
+app.get("/productos/:id", (req, res) => {
+  axios.get(HOST_MSQL + "productos/" + req.params.id)
+    .then((response) => res.send(response.data))
+    .catch((error) => console.log(error));
+});
+
+app.put("/productos/:id", (req, res) => {
+  axios.put(HOST_MSQL + "productos/" + req.params.id, req.body)
+    .then((response) => res.send(response.data))
+    .catch((error) => console.log(error));
+});
+
+app.delete("/productos/:id", (req, res) => {
+  axios.delete(HOST_MSQL + "productos/" + req.params.id)
+    .then((response) => res.send(response.data))
+    .catch((error) => console.log(error));
+});
+
+// Usuarios API
+app.get("/usuarios", (req, res) => {
+  axios.get(HOST_MSQL + "usuarios")
+    .then((response) => res.send(response.data))
+    .catch((error) => console.log(error));
+});
+
+app.post("/usuarios", (req, res) => {
+  axios.post(HOST_MSQL + "usuarios", req.body)
+    .then((response) => res.send(response.data))
+    .catch((error) => console.log(error));
+});
+
+app.get("/usuarios/:id", (req, res) => {
+  axios.get(HOST_MSQL + "usuarios/" + req.params.id)
+    .then((response) => res.send(response.data))
+    .catch((error) => console.log(error));
+});
+
+app.put("/usuarios/:id", (req, res) => {
+  axios.put(HOST_MSQL + "usuarios/" + req.params.id, req.body)
+    .then((response) => res.send(response.data))
+    .catch((error) => console.log(error));
+});
+
+app.delete("/usuarios/:id", (req, res) => {
+  axios.delete(HOST_MSQL + "usuarios/" + req.params.id)
+    .then((response) => res.send(response.data))
+    .catch((error) => console.log(error));
+});
+
+// Clientes API
+app.get("/clientes", (req, res) => {
+  axios.get(HOST_MSQL + "clientes")
+    .then((response) => res.send(response.data))
+    .catch((error) => console.log(error));
+});
+
+app.post("/clientes", (req, res) => {
+  axios.post(HOST_MSQL + "clientes", req.body)
+    .then((response) => res.send(response.data))
+    .catch((error) => console.log(error));
+});
+
+app.get("/clientes/:id", (req, res) => {
+  axios.get(HOST_MSQL + "clientes/" + req.params.id)
+    .then((response) => res.send(response.data))
+    .catch((error) => console.log(error));
+});
+
+app.put("/clientes/:id", (req, res) => {
+  axios.put(HOST_MSQL + "clientes/" + req.params.id, req.body)
+    .then((response) => res.send(response.data))
+    .catch((error) => console.log(error));
+});
+
+app.delete("/clientes/:id", (req, res) => {
+  axios.delete(HOST_MSQL + "clientes/" + req.params.id)
+    .then((response) => res.send(response.data))
+    .catch((error) => console.log(error));
+});
+
+// Empleados API
+app.get("/empleados", (req, res) => {
+  axios.get(HOST_MSQL + "empleados")
+    .then((response) => res.send(response.data))
+    .catch((error) => console.log(error));
+});
+
+app.post("/empleados", (req, res) => {
+  axios.post(HOST_MSQL + "empleados", req.body)
+    .then((response) => res.send(response.data))
+    .catch((error) => console.log(error));
+});
+
+app.get("/empleados/:id", (req, res) => {
+  axios.get(HOST_MSQL + "empleados/" + req.params.id)
+    .then((response) => res.send(response.data))
+    .catch((error) => console.log(error));
+});
+
+app.put("/empleados/:id", (req, res) => {
+  axios.put(HOST_MSQL + "empleados/" + req.params.id, req.body)
+    .then((response) => res.send(response.data))
+    .catch((error) => console.log(error));
+});
+
+app.delete("/empleados/:id", (req, res) => {
+  axios.delete(HOST_MSQL + "empleados/" + req.params.id)
+    .then((response) => res.send(response.data))
+    .catch((error) => console.log(error));
+});
+
+app.listen(port, () => {
+  console.log(`Servidor escuchando en el puerto ${port}`);
 });

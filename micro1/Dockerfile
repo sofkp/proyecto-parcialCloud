@@ -1,7 +1,7 @@
-FROM node:14
-WORKDIR /app
-COPY package*.json ./
-RUN npm install
+FROM python:3-slim
+WORKDIR /apiClientes
+COPY requirements.txt requirements.txt
+RUN pip install -r requirements.txt
 COPY . .
-EXPOSE 8001
-CMD ["node", "index.js"]
+RUN python3 db.py
+CMD ["python", "app.py"]
