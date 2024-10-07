@@ -20,7 +20,7 @@ services:
     restart: always
 
   orquestador:
-    build: ./orchestrator 
+    build: ./orquestador
     ports:
       - "8004:8004"
     depends_on:
