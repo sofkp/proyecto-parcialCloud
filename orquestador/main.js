@@ -7,11 +7,9 @@ const PORT = 8004;
 
 app.use(bodyParser.json());
 
-const USERS_MICROSERVICE_URL = 'http://LB-Prod-164609483.us-east-1.elb.amazonaws.com:8001';
-
-const PRODUCTS_MICROSERVICE_URL = 'http://LB-Prod-164609483.us-east-1.elb.amazonaws.com:8002';
-
-const ORDERS_MICROSERVICE_URL = 'http://LB-Prod-164609483.us-east-1.elb.amazonaws.com:8003';
+const USERS_MICROSERVICE_URL = 'http://user_api:8001';  
+const PRODUCTS_MICROSERVICE_URL = 'http://product_api:8002'; 
+const ORDERS_MICROSERVICE_URL = 'http://orders_api:8003'; 
 
 app.get('/cliente/:id', async (req, res) => {
     const clienteId = req.params.id;

@@ -1,23 +1,34 @@
 version: '3'
-
 services:
   user_api:
-    build: ./micro1 
+    build: ./micro1
     ports:
       - "8001:8001"
     restart: always
+    environment:
+      DATABASE_URL: "mysql_c" 
+    networks:
+      - microservices_network
 
   product_api:
-    build: ./micro2 
+    build: ./micro2
     ports:
       - "8002:8002"
     restart: always
+    environment:
+      DATABASE_URL: "postgres_c"  
+    networks:
+      - microservices_network
 
   orders_api:
-    build: ./micro3 
+    build: ./micro3
     ports:
       - "8003:8003"
     restart: always
+    environment:
+      DATABASE_URL: "mongo_c" 
+    networks:
+      - microservices_network
 
   orquestador:
     build: ./orquestador
@@ -29,6 +40,13 @@ services:
       - orders_api
     restart: always
     environment:
-      USERS_MICROSERVICE_URL: "http://lb-prod-653792025.us-east-1.elb.amazonaws.com:8001" 
-      PRODUCTS_MICROSERVICE_URL: "http://lb-prod-653792025.us-east-1.elb.amazonaws.com:8002" 
-      ORDERS_MICROSERVICE_URL: "http://lb-prod-653792025.us-east-1.elb.amazonaws.com:8003"  
+      USERS_MICROSERVICE_URL: "http://user_api:8001"  
+      PRODUCTS_MICROSERVICE_URL: "http://product_api:8002" 
+      ORDERS_MICROSERVICE_URL: "http://orders_api:8003" 
+    networks:
+      - microservices_network
+
+networks:
+  microservices_network:
+    driver: bridge
+

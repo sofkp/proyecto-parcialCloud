@@ -6,19 +6,15 @@ git clone repositorio
 En EC2 MV Desarrollo
 1. Crear y push contenedores
 
-cd micro1
-docker build -t microservicio1 .
-docker tag microservicio1 sofk/microservicio1
+docker compose up -d
+
+docker tag proyecto-parcialcloud-users_api sofk/microservicio1
 docker push sofk/microservicio1
 
-cd micro2
-docker build -t microservicio2 .
-docker tag microservicio2 sofk/microservicio2
+docker tag proyecto-parcialcloud-products_api sofk/microservicio2
 docker push sofk/microservicio2
 
-cd micro3
-docker build -t microservicio3 .
-docker tag microservicio3 sofk/microservicio3
+docker tag proyecto-parcialcloud-orders_api sofk/microservicio3
 docker push sofk/microservicio3
 
 En EC2 MV BD
