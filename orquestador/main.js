@@ -8,7 +8,7 @@ app.use(cors());
 
 const port = 8004;
 
-const MV_IP = "100.27.200.19";
+const MV_IP = "44.217.181.55";
 const HOST_MYSQL = "http://" + MV_IP + ":8001/";
 const express = require("express"); 
 
