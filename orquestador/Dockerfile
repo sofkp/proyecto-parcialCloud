@@ -1,8 +1,9 @@
-FROM node:16
+FROM node:14
 WORKDIR /app
 COPY package*.json ./
 RUN npm install
 COPY . .
 EXPOSE 8004
-CMD ["node", "index.js"]
+CMD ["node", "main.js"]
+
 
