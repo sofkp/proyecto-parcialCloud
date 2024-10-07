@@ -7,7 +7,7 @@ const host = '0.0.0.0';
 app.use(express.json());
 
 const db = mysql.createConnection({
-    host: '3.85.128.234', 
+    host: '52.72.186.244', 
     user: 'root', 
     password: 'utec', 
     database: 'micro1' 

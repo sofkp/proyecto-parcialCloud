@@ -5,8 +5,7 @@ services:
     ports:
       - "8001:8001"
     restart: always
-    environment:
-      DATABASE_URL: "mysql_c" 
+    container_name: mysql_c 
     networks:
       - microservices_network
 
@@ -15,8 +14,7 @@ services:
     ports:
       - "8002:8002"
     restart: always
-    environment:
-      DATABASE_URL: "postgres_c"  
+    container_name: postgres_c 
     networks:
       - microservices_network
 
