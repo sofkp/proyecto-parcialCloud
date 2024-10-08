@@ -1,48 +1,56 @@
-from flask import Flask, request, jsonify
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
 import mysql.connector
-import time
-from mysql.connector import Error
+from typing import List
 
-app = Flask(__name__)
+app = FastAPI()
 
 def get_db_connection():
     conn = mysql.connector.connect(
         host='44.217.181.55',
         user='root',
         password='utec',
-        database='micro1' 
+        database='micro1'
     )
     return conn
 
+# Modelos
+class Usuario(BaseModel):
+    nombre: str
+    email: str
+    celular: str
+    tipo: str
+
+class Cliente(BaseModel):
+    id_usuario: int
+    pedidos: List[str]
+
+class Empleado(BaseModel):
+    id_usuario: int
+    cargo: str
+
 # USUARIOS
-@app.route('/usuarios', methods=['GET'])
+@app.get("/usuarios")
 def get_all_usuarios():
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
     cursor.execute("SELECT * FROM usuarios")
     usuarios = cursor.fetchall()
     conn.close()
-    return jsonify(usuarios)
+    return usuarios
 
-@app.route('/usuarios', methods=['POST'])
-def create_usuario():
-    data = request.get_json()
-    nombre = data['nombre']
-    email = data['email']
-    celular = data['celular']
-    tipo = data['tipo']
-
+@app.post("/usuarios", status_code=201)
+def create_usuario(usuario: Usuario):
     conn = get_db_connection()
     cursor = conn.cursor()
     query = "INSERT INTO usuarios (nombre, email, celular, tipo) VALUES (%s, %s, %s, %s)"
-    cursor.execute(query, (nombre, email, celular, tipo))
+    cursor.execute(query, (usuario.nombre, usuario.email, usuario.celular, usuario.tipo))
     conn.commit()
     conn.close()
+    return {"message": "Usuario creado correctamente"}
 
-    return jsonify({'message': 'Usuario creado correctamente'}), 201
-
-@app.route('/usuarios/<int:id>', methods=['GET'])
-def get_usuario(id):
+@app.get("/usuarios/{id}")
+def get_usuario(id: int):
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
     cursor.execute("SELECT * FROM usuarios WHERE id = %s", (id,))
@@ -50,18 +58,11 @@ def get_usuario(id):
     conn.close()
 
     if usuario:
-        return jsonify(usuario)
-    else:
-        return jsonify({'message': 'Usuario no encontrado'}), 404
+        return usuario
+    raise HTTPException(status_code=404, detail="Usuario no encontrado")
 
-@app.route('/usuarios/<int:id>', methods=['PUT'])
-def update_usuario(id):
-    data = request.get_json()
-    nombre = data.get('nombre')
-    email = data.get('email')
-    celular = data.get('celular')
-    tipo = data.get('tipo')
-
+@app.put("/usuarios/{id}")
+def update_usuario(id: int, usuario: Usuario):
     conn = get_db_connection()
     cursor = conn.cursor()
     query = """
@@ -69,17 +70,16 @@ def update_usuario(id):
         SET nombre = %s, email = %s, celular = %s, tipo = %s
         WHERE id = %s
     """
-    cursor.execute(query, (nombre, email, celular, tipo, id))
+    cursor.execute(query, (usuario.nombre, usuario.email, usuario.celular, usuario.tipo, id))
     conn.commit()
     conn.close()
 
     if cursor.rowcount == 0:
-        return jsonify({'message': 'Usuario no encontrado'}), 404
-    else:
-        return jsonify({'message': 'Usuario actualizado correctamente'})
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+    return {"message": "Usuario actualizado correctamente"}
 
-@app.route('/usuarios/<int:id>', methods=['DELETE'])
-def delete_usuario(id):
+@app.delete("/usuarios/{id}")
+def delete_usuario(id: int):
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute("DELETE FROM usuarios WHERE id = %s", (id,))
@@ -87,37 +87,32 @@ def delete_usuario(id):
     conn.close()
 
     if cursor.rowcount == 0:
-        return jsonify({'message': 'Usuario no encontrado'}), 404
-    else:
-        return jsonify({'message': 'Usuario eliminado correctamente'})
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+    return {"message": "Usuario eliminado correctamente"}
 
 # CLIENTES
-@app.route('/clientes', methods=['GET'])
+@app.get("/clientes")
 def get_all_clientes():
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
     cursor.execute("SELECT * FROM clientes")
     clientes = cursor.fetchall()
     conn.close()
-    return jsonify(clientes)
+    return clientes
 
-@app.route('/clientes', methods=['POST'])
-def create_cliente():
-    data = request.get_json()
-    id_usuario = data['id_usuario']
-    pedidos = ','.join(data['pedidos']) 
-
+@app.post("/clientes", status_code=201)
+def create_cliente(cliente: Cliente):
     conn = get_db_connection()
     cursor = conn.cursor()
+    pedidos = ','.join(cliente.pedidos)
     query = "INSERT INTO clientes (id_usuario, pedidos) VALUES (%s, %s)"
-    cursor.execute(query, (id_usuario, pedidos))
+    cursor.execute(query, (cliente.id_usuario, pedidos))
     conn.commit()
     conn.close()
+    return {"message": "Cliente creado correctamente"}
 
-    return jsonify({'message': 'Cliente creado correctamente'}), 201
-
-@app.route('/clientes/<int:id>', methods=['GET'])
-def get_cliente(id):
+@app.get("/clientes/{id}")
+def get_cliente(id: int):
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
     cursor.execute("SELECT * FROM clientes WHERE id_usuario = %s", (id,))
@@ -125,116 +120,89 @@ def get_cliente(id):
     conn.close()
 
     if cliente:
-        cliente['pedidos'] = cliente['pedidos'].split(',') 
-        return jsonify(cliente)
-    else:
-        return jsonify({'message': 'Cliente no encontrado'}), 404
+        cliente['pedidos'] = cliente['pedidos'].split(',')
+        return cliente
+    raise HTTPException(status_code=404, detail="Cliente no encontrado")
 
-@app.route('/clientes/<int:id>', methods=['PUT'])
-def update_cliente(id):
-    data = request.get_json()
-
-    if 'pedidos' in data:
-       pedidos = ','.join(data['pedidos'])
-    else:
-       return jsonify({'message': 'Pedidos are required'}), 400
-
+@app.put("/clientes/{id}")
+def update_cliente(id: int, cliente: Cliente):
     conn = get_db_connection()
     cursor = conn.cursor()
+    pedidos = ','.join(cliente.pedidos)
     query = "UPDATE clientes SET pedidos = %s WHERE id_usuario = %s"
     cursor.execute(query, (pedidos, id))
     conn.commit()
     conn.close()
 
     if cursor.rowcount == 0:
-       return jsonify({'message': 'Cliente no encontrado'}), 404
-    else:
-       return jsonify({'message': 'Cliente actualizado correctamente'})
+        raise HTTPException(status_code=404, detail="Cliente no encontrado")
+    return {"message": "Cliente actualizado correctamente"}
 
-@app.route('/clientes/<int:id>', methods=['DELETE'])
-def delete_cliente(id):
-   conn = get_db_connection()
-   cursor = conn.cursor()
-   cursor.execute("DELETE FROM clientes WHERE id_usuario = %s", (id,))
-   conn.commit()
-   conn.close()
+@app.delete("/clientes/{id}")
+def delete_cliente(id: int):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM clientes WHERE id_usuario = %s", (id,))
+    conn.commit()
+    conn.close()
 
-   if cursor.rowcount == 0:
-       return jsonify({'message': 'Cliente no encontrado'}), 404
-   else:
-       return jsonify({'message': 'Cliente eliminado correctamente'})
+    if cursor.rowcount == 0:
+        raise HTTPException(status_code=404, detail="Cliente no encontrado")
+    return {"message": "Cliente eliminado correctamente"}
 
 # EMPLEADOS
-@app.route('/empleados', methods=['GET'])
+@app.get("/empleados")
 def get_all_empleados():
-   conn = get_db_connection()
-   cursor = conn.cursor(dictionary=True)
-   cursor.execute("SELECT * FROM empleados")
-   empleados = cursor.fetchall()
-   conn.close()
-   return jsonify(empleados)
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("SELECT * FROM empleados")
+    empleados = cursor.fetchall()
+    conn.close()
+    return empleados
 
-@app.route('/empleados', methods=['POST'])
-def create_empleado():
-   data = request.get_json()
-   id_usuario = data['id_usuario']
-   cargo = data['cargo']
+@app.post("/empleados", status_code=201)
+def create_empleado(empleado: Empleado):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    query = "INSERT INTO empleados (id_usuario, cargo) VALUES (%s, %s)"
+    cursor.execute(query, (empleado.id_usuario, empleado.cargo))
+    conn.commit()
+    conn.close()
+    return {"message": "Empleado creado correctamente"}
 
-   conn = get_db_connection()
-   cursor = conn.cursor()
-   query = "INSERT INTO empleados (id_usuario, cargo) VALUES (%s, %s)"
-   cursor.execute(query, (id_usuario, cargo))
-   conn.commit()
-   conn.close()
+@app.get("/empleados/{id}")
+def get_empleado(id: int):
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("SELECT * FROM empleados WHERE id_usuario = %s", (id,))
+    empleado = cursor.fetchone()
+    conn.close()
 
-   return jsonify({'message': 'Empleado creado correctamente'}), 201
+    if empleado:
+        return empleado
+    raise HTTPException(status_code=404, detail="Empleado no encontrado")
 
-@app.route('/empleados/<int:id>', methods=['GET'])
-def get_empleado(id):
-   conn = get_db_connection()
-   cursor = conn.cursor(dictionary=True)
-   cursor.execute("SELECT * FROM empleados WHERE id_usuario = %s", (id,))
-   empleado = cursor.fetchone()
-   conn.close()
+@app.put("/empleados/{id}")
+def update_empleado(id: int, empleado: Empleado):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    query = "UPDATE empleados SET cargo = %s WHERE id_usuario = %s"
+    cursor.execute(query, (empleado.cargo, id))
+    conn.commit()
+    conn.close()
 
-   if empleado:
-       return jsonify(empleado)
-   else:
-       return jsonify({'message': 'Empleado no encontrado'}), 404
+    if cursor.rowcount == 0:
+        raise HTTPException(status_code=404, detail="Empleado no encontrado")
+    return {"message": "Empleado actualizado correctamente"}
 
-@app.route('/empleados/<int:id>', methods=['PUT'])
-def update_empleado(id):
-   data = request.get_json()
-   
-   if 'cargo' not in data:
-       return jsonify({'message': 'Cargo is required'}), 400
+@app.delete("/empleados/{id}")
+def delete_empleado(id: int):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM empleados WHERE id_usuario = %s", (id,))
+    conn.commit()
+    conn.close()
 
-   cargo = data['cargo']
-
-   conn = get_db_connection()
-   cursor = conn.cursor()
-   query = "UPDATE empleados SET cargo = %s WHERE id_usuario = %s"
-   cursor.execute(query, (cargo, id))
-   conn.commit()
-   conn.close()
-
-   if cursor.rowcount == 0:
-       return jsonify({'message': 'Empleado no encontrado'}), 404
-   else:
-       return jsonify({'message': 'Empleado actualizado correctamente'})
-
-@app.route('/empleados/<int:id>', methods=['DELETE'])
-def delete_empleado(id):
-   conn = get_db_connection()
-   cursor = conn.cursor()
-   cursor.execute("DELETE FROM empleados WHERE id_usuario = %s", (id,))
-   conn.commit()
-   conn.close()
-
-   if cursor.rowcount == 0:
-       return jsonify({'message': 'Empleado no encontrado'}), 404
-   else:
-       return jsonify({'message': 'Empleado eliminado correctamente'})
-
-if __name__ == '__main__':
-     app.run(host='0.0.0.0', port=8081, debug=True)
+    if cursor.rowcount == 0:
+        raise HTTPException(status_code=404, detail="Empleado no encontrado")
+    return {"message": "Empleado eliminado correctamente"}
