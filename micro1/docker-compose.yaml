@@ -1,4 +1,4 @@
-version: '3'
+version: '3.8'
 
 services:
   mysql:
@@ -19,6 +19,8 @@ services:
       - "8081:8081"
     depends_on:
       - mysql
+    environment:
+      DATABASE_URL: mysql+pymysql://root:utec@44.217.181.55:8001/micro1
     networks:
       - app-network
 
