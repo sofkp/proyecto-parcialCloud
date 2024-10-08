@@ -1,5 +1,7 @@
 from flask import Flask, request, jsonify
 import mysql.connector
+import time
+from mysql.connector import Error
 
 app = Flask(__name__)
 
