@@ -1,8 +1,7 @@
-FROM node:16
+FROM node:10.8.3
 WORKDIR /app
 COPY package*.json ./
 RUN npm install
 COPY . .
-EXPOSE 8003
-CMD ["node", "src/index.js"]
-RUN apt-get update && apt-get install -y dnsutils
+EXPOSE 8083
+CMD ["node", "index.js"]
