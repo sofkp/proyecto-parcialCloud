@@ -1,41 +1,13 @@
 services:
-  mongo:
-    image: mongo:latest
-    container_name: mongo_c
-    ports:
-      - "27017:27017"
-    volumes:
-      - mongo_data:/data/db
 
-  microservice3:
-    build:
-      context: ./micro3  
-      dockerfile: Dockerfile
-    container_name: microservice3
-    ports:
-      - "8083:8083"
-    environment:
-      MONGO_URI: mongodb://mongo:27017/micro3
-    depends_on:
-      - mongo
-
-  postgresdb:
-    image: postgres
-    container_name: postgres_c
+  microservice1:
+    build: ./micro1
     restart: always
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: utec
-      POSTGRES_DB: micro2 
     ports:
-      - "8002:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data 
+      - "8081:8081"
 
   microservice2:
-    build:
-      context: .
-      dockerfile: Dockerfile 
+    build: ./micro2
     container_name: microservice2
     ports:
       - "8082:8082"  
@@ -45,40 +17,27 @@ services:
       SPRING_DATASOURCE_PASSWORD: utec
       SPRING_JPA_HIBERNATE_DDL_AUTO: update 
 
-    depends_on:
-      - postgresdb 
-      
-  mysql:
-    image: mysql:8.0
-    restart: always
+  microservice3:
+    build: ./micro3 
+    container_name: microservice3
     environment:
-      MYSQL_ROOT_PASSWORD: utec
-      MYSQL_DATABASE: micro1
-    volumes:
-      - mysql_data:/var/lib/mysql
+      MONGO_URI: mongodb://mongo:27017/micro3
     ports:
-      - "3306:3306"
-
-  microservice1:
-    build: .
-    restart: always
-    ports:
-      - "8081:8081"
+      - "8083:8083"
     depends_on:
-      - mysql
-
+      - mongo
+      - microservice1
+      - microservice2
+      
   orquestador:
-    build:
-      context: ./orquestador
-      dockerfile: Dockerfile
+    build: ./orquestador
     container_name: orquestador
     ports:
       - "8084:8084"
-
-volumes:
-  mongo_data:
-  postgres_data:
-  mysql_data:
+    depends_on:
+      - microservice1
+      - microservice2
+      - microservice3
 
 networks:
   ecomecommerce-network:
