@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   mongo:
     image: mongo:latest
@@ -48,6 +50,7 @@ services:
     depends_on:
       - postgresdb 
       
+
   mysql:
     image: mysql:8.0
     restart: always
@@ -74,12 +77,7 @@ services:
     container_name: orquestador
     ports:
       - "8084:8084"
-
-volumes:
-  mongo_data:
-  postgres_data:
-  mysql_data:
-
+    
 networks:
   ecomecommerce-network:
     driver: bridge
