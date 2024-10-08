@@ -25,7 +25,6 @@ services:
     ports:
       - "8083:8083"
     depends_on:
-      - mongo
       - microservice1
       - microservice2
       
