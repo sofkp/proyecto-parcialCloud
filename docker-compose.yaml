@@ -91,9 +91,9 @@ services:
       - ecomecommerce-network
       
 volumes:
-  mysql_data:
-  postgres_data:
-  mongo_data:
+  - mysql_data
+  - postgres_data
+  - mongo_data
 
 networks:
   ecomecommerce-network:
