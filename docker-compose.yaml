@@ -1,33 +1,82 @@
 services:
 
+  mysql:
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: utec
+      MYSQL_DATABASE: micro1
+    volumes:
+      - mysql_data:/var/lib/mysql
+    ports:
+      - "8001:3306"
+
   microservice1:
     build: ./micro1
-    container_name: micro1
     restart: always
     ports:
       - "8081:8081"
-
-  microservice2:
-    build: ./micro2
-    container_name: micro2
-    ports:
-      - "8082:8082"  
+    depends_on:
+      - mysql
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgresdb:5432/micro2 
+      DATABASE_URL: mysql+pymysql://root:utec@44.217.181.55:8001/micro1
+    networks:
+      - ecomecommerce-network
+    container_name: micro1
+
+  postgresdb:
+    image: postgres
+    container_name: postgres_c
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: utec
+      POSTGRES_DB: micro2
+    ports:
+      - "8002:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      
+  microservicio2:
+    build:
+      context: ./micro2
+      dockerfile: Dockerfile
+    container_name: springboot_app
+    ports:
+      - "8082:8082"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://44.217.181.55:8002/micro2
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: utec
-      SPRING_JPA_HIBERNATE_DDL_AUTO: update 
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+    depends_on:
+      - postgresdb
+    network:
+      - ecomecommerce-network
+
+  mongo:
+    image: mongo:latest
+    container_name: mongo_c
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
 
   microservice3:
-    build: ./micro3 
-    container_name: microservice3
-    environment:
-      MONGO_URI: mongodb://mongo:27017/micro3
+    build:
+      context: ./micro3 
+      dockerfile: Dockerfile
+    container_name: node_app
     ports:
       - "8083:8083"
+    environment:
+      MONGO_URI: mongodb://44.217.181.55:27017/micro3
     depends_on:
+      - mongo
       - microservice1
       - microservice2
+    network:
+      - ecomecommerce-network
       
   orquestador:
     build: ./orquestador
@@ -38,6 +87,13 @@ services:
       - microservice1
       - microservice2
       - microservice3
+    network:
+      - ecomecommerce-network
+      
+volumes:
+  mysql_data:
+  postgres_data:
+  mongo_data:
 
 networks:
   ecomecommerce-network:
