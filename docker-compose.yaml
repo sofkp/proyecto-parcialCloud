@@ -2,13 +2,14 @@ services:
 
   microservice1:
     build: ./micro1
+    container_name: micro1
     restart: always
     ports:
       - "8081:8081"
 
   microservice2:
     build: ./micro2
-    container_name: microservice2
+    container_name: micro2
     ports:
       - "8082:8082"  
     environment:
