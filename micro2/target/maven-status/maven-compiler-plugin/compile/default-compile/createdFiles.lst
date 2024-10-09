@@ -1,0 +1,9 @@
+com\example\micro2\producto\ProductoRepository.class
+com\example\micro2\categoria\CategoriaService.class
+com\example\micro2\Micro2Application.class
+com\example\micro2\categoria\Categoria.class
+com\example\micro2\categoria\CategoriaController.class
+com\example\micro2\producto\ProductoService.class
+com\example\micro2\categoria\CategoriaRepository.class
+com\example\micro2\producto\Producto.class
+com\example\micro2\producto\ProductoController.class
