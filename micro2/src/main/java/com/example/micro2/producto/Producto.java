@@ -9,6 +9,7 @@ public class Producto {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int idProducto;
     private double precio;
+    private String nombre_producto;
 
     @ManyToOne
     private Categoria categoria;
