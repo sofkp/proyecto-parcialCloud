@@ -1,9 +1,12 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const bodyParser = require('body-parser');
 const app = express();
 const port = 8083;
 
 app.use(express.json());
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
 
 mongoose.connect(process.env.MONGO_URI || 'mongodb://mongo:27017/micro3', {
     useNewUrlParser: true,
