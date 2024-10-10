@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   postgresdb:
     image: postgres
@@ -11,6 +13,8 @@ services:
       - "8002:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - ecomecommerce-network
       
   microservicio2:
     build:
@@ -20,16 +24,14 @@ services:
     ports:
       - "8082:8082"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://44.217.181.55:8002/micro2
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres_c:5432/micro2
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: utec
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
     depends_on:
       - postgresdb
-    network:
-      ecomecommerce-network:
-       aliases:
-          - microservicio2-c
+    networks:
+      - ecomecommerce-network
 
   mongo:
     image: mongo:latest
@@ -38,6 +40,8 @@ services:
       - "27017:27017"
     volumes:
       - mongo_data:/data/db
+    networks:
+      - ecomecommerce-network
 
   microservice3:
     build:
@@ -47,13 +51,11 @@ services:
     ports:
       - "8083:8083"
     environment:
-      MONGO_URI: mongodb://44.217.181.55:27017/micro3
+      MONGO_URI: mongodb://mongo_c:27017/micro3
     depends_on:
       - mongo
-    network:
-      ecomecommerce-network:
-       aliases:
-          - microservicio3-c
+    networks:
+      - ecomecommerce-network
 
   mysql:
     image: mysql:8.0
@@ -65,6 +67,8 @@ services:
       - mysql_data:/var/lib/mysql
     ports:
       - "8001:3306"
+    networks:
+      - ecomecommerce-network
 
   microservice1:
     build:
@@ -78,11 +82,9 @@ services:
       - mysql
       - microservice3
     environment:
-      DATABASE_URL: mysql+pymysql://root:utec@44.217.181.55:8001/micro1
-    network:
-      ecomecommerce-network:
-       aliases:
-          - microservicio1-c
+      DATABASE_URL: mysql+pymysql://root:utec@mysql:3306/micro1
+    networks:
+      - ecomecommerce-network
 
   orquestador:
     build:
@@ -93,17 +95,15 @@ services:
       - "8084:8084"
     depends_on:
       - microservice1
-      - microservice2
+      - microservicio2
       - microservice3
-    network:
-      ecomecommerce-network:
-       aliases:
-          - orquestador-c
+    networks:
+      - ecomecommerce-network
       
 volumes:
-  - mysql_data
-  - postgres_data
-  - mongo_data
+  mysql_data:
+  postgres_data:
+  mongo_data:
 
 networks:
   ecomecommerce-network:
