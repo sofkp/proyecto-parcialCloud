@@ -50,8 +50,6 @@ services:
       MONGO_URI: mongodb://44.217.181.55:27017/micro3
     depends_on:
       - mongo
-      - microservice1
-      - microservice2
     network:
       ecomecommerce-network:
        aliases:
@@ -84,7 +82,6 @@ services:
        aliases:
           - microservicio1-c
 
-      
   orquestador:
     build: ./orquestador
     container_name: orquestador
