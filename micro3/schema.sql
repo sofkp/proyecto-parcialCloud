@@ -7,7 +7,6 @@ CREATE TABLE direccion (
 CREATE TABLE pedido (
     id INT PRIMARY KEY AUTOINCREMENT,
     fecha_envio DATE,
-    metodo_pago TEXT,
     total_pago DECIMAL(10,2),
     observaciones TEXT NOT NULL,
     id_usuario INT NOT NULL,
