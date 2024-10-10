@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 const direccionSchema = new mongoose.Schema({
   calle: { type: String, required: true },
@@ -8,4 +8,4 @@ const direccionSchema = new mongoose.Schema({
   pais: { type: String, required: true }
 });
 
-module.exports = mongoose.model("Direccion", direccionSchema);
+module.exports = mongoose.model('Direccion', direccionSchema);

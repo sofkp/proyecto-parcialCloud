@@ -13,6 +13,7 @@ CREATE TABLE usuarios (
 CREATE TABLE clientes (
     id_usuario INT PRIMARY KEY,
     pedidos TEXT,
+    direccion_id INT,
     FOREIGN KEY (id_usuario) REFERENCES usuarios(id)
 );
 
@@ -21,18 +22,4 @@ CREATE TABLE empleados (
     cargo TEXT NOT NULL,
     FOREIGN KEY (id_usuario) REFERENCES usuarios(id)
 );
-
-INSERT INTO usuarios (nombre, email, celular, tipo) VALUES 
-('Juan Perez', 'juan.perez@mail.com', '123456789', 'cliente'),
-('Maria Lopez', 'maria.lopez@mail.com', '098765432', 'empleado'),
-('Carlos Gomez', 'carlos.gomez@mail.com', '555444332', 'cliente');
-
-INSERT INTO clientes (id_usuario, pedidos) VALUES
-(1, '1,2'),
-(3, '3');
-
-INSERT INTO empleados (id_usuario, cargo) VALUES
-(2, 'cajero'),
-(3, 'encargado de marketing');
-
 commit;

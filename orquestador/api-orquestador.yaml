@@ -1,158 +1,95 @@
 openapi: 3.0.0
 info:
-  title: Orchestrator API
-  description: API que invoca a los otros microservicios (clientes, productos y pedidos)
+  title: Orquestador API
+  description: API para gestionar pedidos que interactúa con microservicios de usuarios, productos y pedidos.
   version: 1.0.0
 servers:
-  - url: http://LB-Prod-164609483.us-east-1.elb.amazonaws.com:8004/
+  - url: http://localhost:8004
     description: Orchestrator Local Server
+
 paths:
-  /cliente/{id}:
-    get:
-      summary: Obtener información del cliente y sus pedidos
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-          description: ID del cliente
-      responses:
-        '200':
-          description: Datos del cliente y sus pedidos
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  cliente:
-                    type: object
-                    description: Información del cliente
-                  pedidos:
-                    type: array
-                    items:
-                      type: object
-                      description: Lista de pedidos del cliente
-        '500':
-          description: Error al obtener los datos del cliente o sus pedidos
-
-  /empleado/{id}:
-    get:
-      summary: Obtener información de un empleado
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-          description: ID del empleado
-      responses:
-        '200':
-          description: Información del empleado
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  empleado:
-                    type: object
-                    description: Datos del empleado
-        '500':
-          description: Error al obtener los datos del empleado
-
-  /cliente/{id}/pedido:
+  /api/orders:
     post:
-      summary: Crear un nuevo pedido para un cliente
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-          description: ID del cliente
+      summary: Crear un pedido
       requestBody:
-        description: Datos del nuevo pedido
         required: true
         content:
           application/json:
             schema:
               type: object
               properties:
-                productoId:
-                  type: integer
-                  description: ID del producto a pedir
-                cantidad:
-                  type: integer
-                  description: Cantidad de productos
-      responses:
-        '201':
-          description: Pedido creado con éxito
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
+                cliente_id:
+                  type: string
+                direccion:
+                  type: object
+                  properties:
+                    calle:
+                      type: string
+                    ciudad:
+                      type: string
+                    estado:
+                      type: string
+                    codigoPostal:
+                      type: string
+                    pais:
+                      type: string
+                productos_ids:
+                  type: array
+                  items:
                     type: string
-                    example: Pedido creado
-                  pedido:
-                    type: object
-                    description: Información del nuevo pedido
-        '500':
-          description: Error al crear el pedido
-
-  /productos/{id}/detalle:
+      responses:
+        201:
+          description: Pedido creado exitosamente
+        400:
+          description: Error en la solicitud
+        404:
+          description: Cliente o productos no encontrados
+        500:
+          description: Error del servidor
+          
     get:
-      summary: Obtener los detalles de un producto y su disponibilidad
+      summary: Obtener todos los pedidos
+      responses:
+        200:
+          description: Lista de pedidos con detalles
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+        500:
+          description: Error del servidor
+
+  /api/orders/{id}:
+    put:
+      summary: Modificar un pedido
       parameters:
-        - name: id
-          in: path
-          required: true
+        - in: path
+          name: id
           schema:
-            type: integer
-          description: ID del producto
+            type: string
+          required: true
+          description: ID del pedido a modificar
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                cliente_id:
+                  type: string
+                productos_ids:
+                  type: array
+                  items:
+                    type: string
       responses:
-        '200':
-          description: Información del producto y disponibilidad
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  producto:
-                    type: object
-                    description: Detalles del producto
-                  disponibilidad:
-                    type: object
-                    description: Disponibilidad del producto
-        '500':
-          description: Error al obtener los detalles del producto o disponibilidad
-
-  /menu:
-    get:
-      summary: Obtener un resumen de clientes, productos y pedidos
-      responses:
-        '200':
-          description: Resumen de datos
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  clientes:
-                    type: array
-                    items:
-                      type: object
-                      description: Lista de clientes
-                  productos:
-                    type: array
-                    items:
-                      type: object
-                      description: Lista de productos
-                  pedidos:
-                    type: array
-                    items:
-                      type: object
-                      description: Lista de pedidos
-        '500':
-          description: Error al obtener el resumen de datos
+        200:
+          description: Pedido modificado exitosamente
+        403:
+          description: No tienes permiso para modificar este pedido
+        400:
+          description: Uno o más productos están fuera de stock
+        500:
+          description: Error del servidor

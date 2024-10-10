@@ -1,29 +1,4 @@
 services:
-
-  mysql:
-    image: mysql:8.0
-    restart: always
-    environment:
-      MYSQL_ROOT_PASSWORD: utec
-      MYSQL_DATABASE: micro1
-    volumes:
-      - mysql_data:/var/lib/mysql
-    ports:
-      - "8001:3306"
-
-  microservice1:
-    build: ./micro1
-    restart: always
-    ports:
-      - "8081:8081"
-    depends_on:
-      - mysql
-    environment:
-      DATABASE_URL: mysql+pymysql://root:utec@44.217.181.55:8001/micro1
-    networks:
-      - ecomecommerce-network
-    container_name: micro1
-
   postgresdb:
     image: postgres
     container_name: postgres_c
@@ -52,7 +27,9 @@ services:
     depends_on:
       - postgresdb
     network:
-      - ecomecommerce-network
+      ecomecommerce-network:
+       aliases:
+          - microservicio2-c
 
   mongo:
     image: mongo:latest
@@ -76,7 +53,37 @@ services:
       - microservice1
       - microservice2
     network:
-      - ecomecommerce-network
+      ecomecommerce-network:
+       aliases:
+          - microservicio3-c
+
+  mysql:
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: utec
+      MYSQL_DATABASE: micro1
+    volumes:
+      - mysql_data:/var/lib/mysql
+    ports:
+      - "8001:3306"
+
+  microservice1:
+    build: ./micro1
+    container_name: micro1
+    restart: always
+    ports:
+      - "8081:8081"
+    depends_on:
+      - mysql
+      - microservice3
+    environment:
+      DATABASE_URL: mysql+pymysql://root:utec@44.217.181.55:8001/micro1
+    network:
+      ecomecommerce-network:
+       aliases:
+          - microservicio1-c
+
       
   orquestador:
     build: ./orquestador
@@ -88,7 +95,9 @@ services:
       - microservice2
       - microservice3
     network:
-      - ecomecommerce-network
+      ecomecommerce-network:
+       aliases:
+          - orquestador-c
       
 volumes:
   - mysql_data

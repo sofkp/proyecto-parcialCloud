@@ -1,90 +1,34 @@
 openapi: 3.0.0
 info:
-  title: API de Direcciones y Pedidos
-  description: API para gestionar direcciones y pedidos.
+  title: API de Pedidos y Direcciones
+  description: API para gestionar pedidos y direcciones
   version: 1.0.0
 
-servers:
-  - url: http://localhost:8001
-    description: Servidor de desarrollo
-
 paths:
-  /direccion:
-    get:
-      summary: Obtener todas las direcciones
-      responses:
-        '200':
-          description: Un arreglo JSON de direcciones
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    id:
-                      type: string
-                    direccion_completa:
-                      type: string
-                    distrito:
-                      type: string
-                    provincia:
-                      type: string
-    post:
-      summary: Crear una nueva dirección
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                direccion_completa:
-                  type: string
-                distrito:
-                  type: string
-                provincia:
-                  type: string
-      responses:
-        '201':
-          description: Dirección creada exitosamente
-
-  /pedido:
+  /pedidos:
     get:
       summary: Obtener todos los pedidos
       responses:
-        '200':
-          description: Un arreglo JSON de pedidos
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    id:
-                      type: string
-                    fecha_envio:
-                      type: string
-                      format: date
-                    metodo_pago:
-                      type: string
-                    total_pago:
-                      type: number
-                      format: double
-                    observaciones:
-                      type: string
-                    id_usuario:
-                      type: integer
+        200:
+          description: Lista de pedidos
+        500:
+          description: Error en el servidor
     post:
       summary: Crear un nuevo pedido
       requestBody:
-        required: true
         content:
           application/json:
             schema:
               type: object
               properties:
+                cliente_id:
+                  type: string
+                productos_ids:
+                  type: array
+                  items:
+                    type: string
+                direccion_id:
+                  type: string
                 fecha_envio:
                   type: string
                   format: date
@@ -92,11 +36,139 @@ paths:
                   type: string
                 total_pago:
                   type: number
-                  format: double
                 observaciones:
                   type: string
-                id_usuario:
-                  type: integer
       responses:
-        '201':
-          description: Pedido creado exitosamente
+        201:
+          description: Pedido creado
+        400:
+          description: Error en la creación
+  /pedidos/{id}:
+    put:
+      summary: Actualizar un pedido
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                cliente_id:
+                  type: string
+                productos_ids:
+                  type: array
+                  items:
+                    type: string
+                direccion_id:
+                  type: string
+                fecha_envio:
+                  type: string
+                  format: date
+                metodo_pago:
+                  type: string
+                total_pago:
+                  type: number
+                observaciones:
+                  type: string
+      responses:
+        200:
+          description: Pedido actualizado
+        400:
+          description: Error en la actualización
+        404:
+          description: Pedido no encontrado
+    delete:
+      summary: Eliminar un pedido
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Pedido eliminado
+        404:
+          description: Pedido no encontrado
+
+  /direcciones:
+    get:
+      summary: Obtener todas las direcciones
+      responses:
+        200:
+          description: Lista de direcciones
+        500:
+          description: Error en el servidor
+    post:
+      summary: Crear una nueva dirección
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                calle:
+                  type: string
+                ciudad:
+                  type: string
+                estado:
+                  type: string
+                codigoPostal:
+                  type: string
+                pais:
+                  type: string
+      responses:
+        201:
+          description: Dirección creada
+        400:
+          description: Error en la creación
+  /direcciones/{id}:
+    put:
+      summary: Actualizar una dirección
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                calle:
+                  type: string
+                ciudad:
+                  type: string
+                estado:
+                  type: string
+                codigoPostal:
+                  type: string
+                pais:
+                  type: string
+      responses:
+        200:
+          description: Dirección actualizada
+        400:
+          description: Error en la actualización
+        404:
+          description: Dirección no encontrada
+    delete:
+      summary: Eliminar una dirección
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Dirección eliminada
+        404:
+          description: Dirección no encontrada

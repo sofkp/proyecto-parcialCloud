@@ -5,69 +5,83 @@ const port = 8004;
 
 app.use(express.json());
 
-MICRO1_URL = "http://localhost:8081"
-MICRO2_URL = "http://localhost:8082"
-MICRO3_URL = "http://localhost:8083"
+MICRO1_URL = "http://localhost:8081"; 
+MICRO2_URL = "http://localhost:8082"; 
+MICRO3_URL = "http://localhost:8083"; 
 
-app.get('/api/orders', async (req, res) => {
-    try {
-        const ordersResponse = await axios.get(MICRO3_URL + '/pedidos'); 
-        const orders = ordersResponse.data;
-
-        const productsResponse = await axios.get(MICRO2_URL + '/productos');
-        const products = productsResponse.data;
-
-        const userPromises = orders.map(order =>
-            axios.get(MICRO1_URL + `/usuarios/${order.cliente_id}`)
-        );
-        const usersResponses = await Promise.all(userPromises);
-        const users = usersResponses.map(response => response.data);
-
-        const combinedData = orders.map(order => {
-            return {
-                ...order,
-                productDetails: products.find(product => product.id === order.product_id),
-                userDetails: users.find(user => user.id === order.cliente_id),
-            };
-        });
-
-        res.json(combinedData);
-    } catch (error) {
-        console.error('Error fetching orders:', error);
-        res.status(500).send('Error fetching orders');
-    }
-});
-
-app.post('/api/orders', async (req, res) => {
-    const { numero_pedido, cliente_id, productos, total } = req.body;
+app.post('/pedido', async (req, res) => {
+    const { cliente_id, direccion, productos_ids } = req.body;
 
     try {
-        const userResponse = await axios.get(MICRO1_URL + `/usuarios/${cliente_id}`);
-        
+        const userResponse = await axios.get(`${MICRO1_URL}/clientes/${cliente_id}`);
         if (!userResponse.data) {
-            return res.status(404).send('User not found');
-        }
-        const productChecks = await Promise.all(productos.map(productId =>
-            axios.get(MICRO2_URL + `/productos/${productId}`)
-        ));
-
-        const allProductsAvailable = productChecks.every(response => response.status === 200);
-
-        if (!allProductsAvailable) {
-            return res.status(400).send('Some products are not available');
+            return res.status(404).send('Cliente no encontrado');
         }
 
-        const orderResponse = await axios.post(MICRO3_URL + '/pedidos', {
-            numero_pedido,
+        const productPromises = productos_ids.map(producto_id => 
+            axios.get(`${MICRO2_URL}/productos/${producto_id}`)
+        );
+        const productResponses = await Promise.all(productPromises);
+
+        const outOfStock = productResponses.some(resp => !resp.data.stock);
+        if (outOfStock) {
+            return res.status(400).send('Uno o más productos están fuera de stock');
+        }
+
+        const total = productResponses.reduce((sum, resp) => sum + resp.data.precio, 0);
+
+        let direccion_id;
+        if (direccion) {
+            const direccionResponse = await axios.post(`${MICRO3_URL}/direcciones`, direccion);
+            direccion_id = direccionResponse.data._id;
+        }
+
+        const orderResponse = await axios.post(`${MICRO3_URL}/pedidos`, {
             cliente_id,
-            productos,
-            total,
+            productos_ids,
+            direccion_id,
+            total
         });
 
         res.status(201).json(orderResponse.data);
     } catch (error) {
-        console.error('Error creating order:', error);
-        res.status(500).send('Error creating order');
+        console.error('Error al crear el pedido:', error);
+        res.status(500).send('Error al crear el pedido');
+    }
+});
+
+app.put('/pedido:id', async (req, res) => {
+    const { cliente_id, productos_ids } = req.body;
+    const orderId = req.params.id;
+
+    try {
+        const orderResponse = await axios.get(`${MICRO3_URL}/pedidos/${orderId}`);
+        const pedido = orderResponse.data;
+        if (pedido.cliente_id !== cliente_id) {
+            return res.status(403).send('No tienes permiso para modificar este pedido');
+        }
+
+        const productPromises = productos_ids.map(producto_id =>
+            axios.get(`${MICRO2_URL}/productos/${producto_id}`)
+        );
+        const productResponses = await Promise.all(productPromises);
+        
+        const outOfStock = productResponses.some(resp => !resp.data.stock);
+        if (outOfStock) {
+            return res.status(400).send('Uno o más productos están fuera de stock');
+        }
+
+        const total = productResponses.reduce((sum, resp) => sum + resp.data.precio, 0);
+
+        const updatedOrder = await axios.put(`${MICRO3_URL}/pedidos/${orderId}`, {
+            productos_ids,
+            total
+        });
+
+        res.status(200).json(updatedOrder.data);
+    } catch (error) {
+        console.error('Error al modificar el pedido:', error);
+        res.status(500).send('Error al modificar el pedido');
     }
 });
 

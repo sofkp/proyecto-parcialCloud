@@ -33,6 +33,7 @@ class Cliente(Base):
     id = Column(Integer, primary_key=True, index=True)
     id_usuario = Column(Integer)
     pedidos = Column(Text)
+    direccion_id = Column(Integer)
 
 
 class Empleado(Base):
@@ -110,9 +111,18 @@ def get_all_clientes(db: Session = Depends(get_db)):
     return JSONResponse(content=[cliente.__dict__ for cliente in clientes])
 
 @app.post('/clientes')
-def create_cliente(id_usuario: int, pedidos: list = [], db: Session = Depends(get_db)):
+def create_cliente(id_usuario: int, pedidos: list = [], direccion_data: dict = None, db: Session = Depends(get_db)):
+    direccion_id = None
+    if direccion_data:
+        try:
+            direccion_response = requests.post(f"{MICRO3_URL}/direcciones", json=direccion_data)
+            if direccion_response.status_code == 201:
+                direccion_id = direccion_response.json().get('id')
+        except requests.exceptions.RequestException as e:
+            raise HTTPException(status_code=500, detail="Error al comunicar con el microservicio de direcciones")
+
     pedidos_str = ','.join(pedidos)
-    nuevo_cliente = Cliente(id_usuario=id_usuario, pedidos=pedidos_str)
+    nuevo_cliente = Cliente(id_usuario=id_usuario, pedidos=pedidos_str, direccion_id=direccion_id)
     db.add(nuevo_cliente)
     db.commit()
     db.refresh(nuevo_cliente)
@@ -128,14 +138,25 @@ def get_cliente(id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Cliente no encontrado")
 
 @app.put('/clientes/{id}')
-def update_cliente(id: int, pedidos: list = [], db: Session = Depends(get_db)):
+def update_cliente(id: int, pedidos: list = [], direccion_data: dict = None, db: Session = Depends(get_db)):
     cliente = db.query(Cliente).filter(Cliente.id == id).first()
     if not cliente:
         raise HTTPException(status_code=404, detail="Cliente no encontrado")
 
-    cliente.pedidos = ','.join(pedidos)
+    if pedidos:
+        cliente.pedidos = ','.join(pedidos)
+
+    if direccion_data:
+        try:
+            direccion_response = requests.post(f"{MICRO3_URL}/direcciones", json=direccion_data)
+            if direccion_response.status_code == 201:
+                cliente.direccion_id = direccion_response.json().get('id')
+        except requests.exceptions.RequestException as e:
+            raise HTTPException(status_code=500, detail="Error al comunicar con el microservicio de direcciones")
+
     db.commit()
     return JSONResponse(content={'message': 'Cliente actualizado correctamente'})
+
 
 @app.delete('/clientes/{id}')
 def delete_cliente(id: int, db: Session = Depends(get_db)):
