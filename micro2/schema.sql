@@ -13,13 +13,3 @@ CREATE TABLE productos (
     id_categoria INT NOT NULL,
     FOREIGN KEY (id_categoria) REFERENCES categoria(id)
 );
-
-INSERT INTO categoria (nombre_categoria) VALUES
-    ('Ropa'),
-    ('Calzado');
-
-INSERT INTO productos (nombre_producto, precio, id_categoria) VALUES
-    ('Camiseta', 19.99, 1),
-    ('Pantalones', 39.99, 1),
-    ('Zapatos', 59.99, 2);
-

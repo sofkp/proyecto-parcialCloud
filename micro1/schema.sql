@@ -23,3 +23,4 @@ CREATE TABLE empleados (
     FOREIGN KEY (id_usuario) REFERENCES usuarios(id)
 );
 commit;
+
